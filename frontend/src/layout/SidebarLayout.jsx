@@ -7,16 +7,19 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import AnalyticsIcon from '@mui/icons-material/Analytics'
-import StoreIcon from '@mui/icons-material/Store'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import PaymentIcon from '@mui/icons-material/Payment'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import ReceiptIcon from '@mui/icons-material/Receipt'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useAuth } from '../contexts/AuthContext'
+import { 
+  AnimatedDashboardIcon,
+  AnimatedTrendingUpIcon,
+  AnimatedInventoryIcon,
+  AnimatedShoppingCartIcon,
+  AnimatedPaymentIcon,
+  AnimatedReceiptIcon,
+  AnimatedStoreIcon,
+  AnimatedAnalyticsIcon,
+  AnimatedUserIcon
+} from '../components/AnimatedIcons'
 
 const drawerWidth = 260
 
@@ -29,47 +32,47 @@ export default function SidebarLayout({ children, mode, onToggleMode }) {
   const { user, logout } = useAuth()
 
   const navItems = useMemo(() => ([
-    { to: '/', label: 'Dashboard', icon: <DashboardIcon /> },
+    { to: '/', label: 'Dashboard', icon: <AnimatedDashboardIcon /> },
   ]), [])
 
   const reportGroups = useMemo(() => [
     {
       title: 'Sales & Revenue',
-      icon: <TrendingUpIcon />,
+      icon: <AnimatedTrendingUpIcon />,
       color: '#22c55e',
       reports: [
-        { key: 'sales_report', label: 'Sales Report', icon: <TrendingUpIcon /> },
-        { key: 'payment_report', label: 'Payment Received', icon: <PaymentIcon /> },
-        { key: 'pending_report', label: 'Pending Payment', icon: <ReceiptIcon /> },
-        { key: 'debitors_report', label: 'Sundry Debitors', icon: <ReceiptIcon /> },
+        { key: 'sales_report', label: 'Sales Report', icon: <AnimatedTrendingUpIcon /> },
+        { key: 'payment_report', label: 'Payment Received', icon: <AnimatedPaymentIcon /> },
+        { key: 'pending_report', label: 'Pending Payment', icon: <AnimatedReceiptIcon /> },
+        { key: 'debitors_report', label: 'Sundry Debitors', icon: <AnimatedReceiptIcon /> },
       ]
     },
     {
       title: 'Inventory',
-      icon: <InventoryIcon />,
+      icon: <AnimatedInventoryIcon />,
       color: '#8b5cf6',
       reports: [
-        { key: 'stock_report', label: 'Current Stock', icon: <InventoryIcon /> },
-        { key: 'purchase_report', label: 'Purchase Report', icon: <StoreIcon /> },
-        { key: 'creditors_report', label: 'Sundry Creditors', icon: <ReceiptIcon /> },
+        { key: 'stock_report', label: 'Current Stock', icon: <AnimatedInventoryIcon /> },
+        { key: 'purchase_report', label: 'Purchase Report', icon: <AnimatedStoreIcon /> },
+        { key: 'creditors_report', label: 'Sundry Creditors', icon: <AnimatedReceiptIcon /> },
       ]
     },
     {
       title: 'Orders & Expenses',
-      icon: <ShoppingCartIcon />,
+      icon: <AnimatedShoppingCartIcon />,
       color: '#3b82f6',
       reports: [
-        { key: 'order_report', label: 'Order Report', icon: <ShoppingCartIcon /> },
-        { key: 'petty_expense_report', label: 'Petty Expense', icon: <ReceiptIcon /> },
-        { key: 'daily_activity_report', label: 'Daily Activity', icon: <AnalyticsIcon /> },
+        { key: 'order_report', label: 'Order Report', icon: <AnimatedShoppingCartIcon /> },
+        { key: 'petty_expense_report', label: 'Petty Expense', icon: <AnimatedReceiptIcon /> },
+        { key: 'daily_activity_report', label: 'Daily Activity', icon: <AnimatedAnalyticsIcon /> },
       ]
     },
     {
       title: 'Human Resources',
-      icon: <AnalyticsIcon />,
-      color: '#f59e0b',
+      icon: <AnimatedUserIcon />,
+      color: '#06b6d4',
       reports: [
-        { key: 'hr_report', label: 'HR Attendance', icon: <AnalyticsIcon /> },
+        { key: 'hr_report', label: 'HR Attendance', icon: <AnimatedUserIcon /> },
       ]
     }
   ], [])
@@ -132,7 +135,15 @@ export default function SidebarLayout({ children, mode, onToggleMode }) {
         </Typography>
       </Box>
       <Divider />
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ 
+        flexGrow: 1, 
+        overflowY: 'auto', 
+        display: 'flex', 
+        flexDirection: 'column',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        '&::-webkit-scrollbar': { display: 'none' },
+      }}>
         <List sx={{ px: 1.25, py: 0.5 }}>
           {/* Dashboard Link */}
         {navItems.map((item) => {

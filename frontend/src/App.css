@@ -40,3 +40,17 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Additional scrollbar hiding for specific components */
+.MuiDrawer-paper,
+.MuiList-root,
+.MuiBox-root {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.MuiDrawer-paper::-webkit-scrollbar,
+.MuiList-root::-webkit-scrollbar,
+.MuiBox-root::-webkit-scrollbar {
+  display: none !important;
+}
