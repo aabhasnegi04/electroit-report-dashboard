@@ -18,7 +18,8 @@ import {
   AnimatedReceiptIcon,
   AnimatedStoreIcon,
   AnimatedAnalyticsIcon,
-  AnimatedUserIcon
+  AnimatedUserIcon,
+  AnimatedTodoIcon
 } from '../components/AnimatedIcons'
 
 const drawerWidth = 260
@@ -65,6 +66,7 @@ export default function SidebarLayout({ children, mode, onToggleMode }) {
         { key: 'order_report', label: 'Order Report', icon: <AnimatedShoppingCartIcon /> },
         { key: 'petty_expense_report', label: 'Petty Expense', icon: <AnimatedReceiptIcon /> },
         { key: 'daily_activity_report', label: 'Daily Activity', icon: <AnimatedAnalyticsIcon /> },
+        { key: 'todo_report', label: 'TO DO LIST', icon: <AnimatedTodoIcon /> },
       ]
     },
     {

@@ -599,3 +599,68 @@ export const AnimatedSearchIcon = ({ size = 24 }) => (
     <circle className="search-sparkle" cx="11" cy="13" r="0.5" fill="#34d399" style={{animationDelay: '0.8s'}} />
   </Box>
 )
+
+// TODO Icon - Slate themed with animated checklist
+export const AnimatedTodoIcon = ({ size = 24 }) => (
+  <Box component="svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <defs>
+      <linearGradient id="todoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#64748b" />
+        <stop offset="100%" stopColor="#475569" />
+      </linearGradient>
+    </defs>
+    <style>
+      {`
+        .todo-clipboard {
+          animation: todoFloat 3s ease-in-out infinite;
+        }
+        .todo-check {
+          animation: todoCheck 2.5s ease-in-out infinite;
+        }
+        .todo-line {
+          stroke-dasharray: 8;
+          animation: todoWrite 3s ease-in-out infinite;
+        }
+        .todo-reminder {
+          animation: reminderPulse 2s ease-in-out infinite;
+        }
+        @keyframes todoFloat {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-2px) rotate(1deg); }
+        }
+        @keyframes todoCheck {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.2); opacity: 1; }
+        }
+        @keyframes todoWrite {
+          0% { stroke-dashoffset: 8; opacity: 0.5; }
+          50% { stroke-dashoffset: 0; opacity: 1; }
+          100% { stroke-dashoffset: -8; opacity: 0.7; }
+        }
+        @keyframes reminderPulse {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+      `}
+    </style>
+    {/* Clipboard */}
+    <rect className="todo-clipboard" x="4" y="2" width="16" height="20" rx="2" fill="#f8fafc" stroke="url(#todoGrad)" strokeWidth="2" />
+    <rect x="8" y="1" width="8" height="3" rx="1" fill="url(#todoGrad)" />
+    
+    {/* Checklist items */}
+    <circle className="todo-check" cx="7" cy="8" r="1.5" fill="#22c55e" />
+    <path d="M6 8l1 1 2-2" stroke="#ffffff" strokeWidth="1.5" fill="none" className="todo-check" />
+    <path className="todo-line" d="M11 8h7" stroke="#64748b" strokeWidth="1.5" style={{animationDelay: '0s'}} />
+    
+    <circle cx="7" cy="12" r="1.5" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="1" />
+    <path className="todo-line" d="M11 12h7" stroke="#64748b" strokeWidth="1.5" style={{animationDelay: '0.5s'}} />
+    
+    <circle cx="7" cy="16" r="1.5" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="1" />
+    <path className="todo-line" d="M11 16h5" stroke="#64748b" strokeWidth="1.5" style={{animationDelay: '1s'}} />
+    
+    {/* Reminder bell */}
+    <circle className="todo-reminder" cx="18" cy="5" r="2" fill="#fbbf24" />
+    <path d="M17 4.5c0-.3.2-.5.5-.5h1c.3 0 .5.2.5.5v1c0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5v-1z" fill="#ffffff" className="todo-reminder" />
+    <circle cx="18" cy="7.5" r="0.3" fill="#ffffff" className="todo-reminder" />
+  </Box>
+)

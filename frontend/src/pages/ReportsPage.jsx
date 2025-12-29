@@ -2,7 +2,7 @@ import { Box, Button, Grid, Typography, Card, CardContent, Chip, Paper } from '@
 import { alpha } from '@mui/material/styles'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ReportRunner from '../shared/ReportRunner'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   AnimatedTrendingUpIcon,
@@ -13,7 +13,8 @@ import {
   AnimatedStoreIcon,
   AnimatedAnalyticsIcon,
   AnimatedUserIcon,
-  AnimatedReportsIcon
+  AnimatedReportsIcon,
+  AnimatedTodoIcon
 } from '../components/AnimatedIcons'
 
 // Add keyframes for animations
@@ -61,6 +62,7 @@ if (typeof document !== 'undefined') {
 export default function ReportsPage() {
   const [params, setParams] = useSearchParams()
   const selectedReport = params.get('report') || ''
+  const [reportGenerated, setReportGenerated] = useState(false)
 
   const reportGroups = useMemo(() => [
     {
@@ -101,6 +103,22 @@ export default function ReportsPage() {
           needsDateRange: true, 
           icon: AnimatedReceiptIcon,
           color: '#f59e0b'
+        },
+        { 
+          key: 'collection_report', 
+          label: 'Collection by Person', 
+          description: 'Payment collection tracking by person',
+          needsDateRange: true, 
+          icon: AnimatedPaymentIcon,
+          color: '#8b5cf6'
+        },
+        { 
+          key: 'collection_brand_report', 
+          label: 'Collection by Brand', 
+          description: 'Payment collection tracking by brand',
+          needsDateRange: true, 
+          icon: AnimatedAnalyticsIcon,
+          color: '#f97316'
         },
       ]
     },
@@ -168,6 +186,14 @@ export default function ReportsPage() {
           icon: AnimatedAnalyticsIcon,
           color: '#ef4444'
         },
+        { 
+          key: 'todo_report', 
+          label: 'TO DO LIST', 
+          description: 'TODO items with action history',
+          needsDateRange: true, 
+          icon: AnimatedTodoIcon,
+          color: '#64748b'
+        },
       ]
     },
     {
@@ -201,8 +227,11 @@ export default function ReportsPage() {
       petty_expense_report: { main: '#ec4899', alt: '#db2777', Icon: AnimatedReceiptIcon },
       creditors_report: { main: '#ec4899', alt: '#db2777', Icon: AnimatedReceiptIcon },
       debitors_report: { main: '#f59e0b', alt: '#d97706', Icon: AnimatedReceiptIcon },
+      collection_report: { main: '#8b5cf6', alt: '#7c3aed', Icon: AnimatedPaymentIcon },
+      collection_brand_report: { main: '#f97316', alt: '#ea580c', Icon: AnimatedAnalyticsIcon },
       hr_report: { main: '#06b6d4', alt: '#0891b2', Icon: AnimatedUserIcon },
       daily_activity_report: { main: '#ef4444', alt: '#dc2626', Icon: AnimatedAnalyticsIcon },
+      todo_report: { main: '#64748b', alt: '#475569', Icon: AnimatedTodoIcon },
     }
     return map[key] || { main: '#6366f1', alt: '#4f46e5', Icon: AnimatedReportsIcon }
   }
@@ -210,11 +239,17 @@ export default function ReportsPage() {
   function openReport(key) {
     params.set('report', key)
     setParams(params, { replace: true })
+    setReportGenerated(false) // Reset when opening a new report
   }
 
   function backToGrid() {
     params.delete('report')
     setParams(params, { replace: true })
+    setReportGenerated(false) // Reset when going back
+  }
+
+  function handleReportGenerated(success) {
+    setReportGenerated(success)
   }
 
   const selectedReportLabel = useMemo(() => {
@@ -570,135 +605,176 @@ export default function ReportsPage() {
           overflow: 'hidden',
           maxWidth: '100vw'
         }}>
-          {/* Report Header - Fixed */}
-          <Paper
-            elevation={0}
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: { xs: 2, md: 3 },
-              px: { xs: 2, md: 4 },
-              py: { xs: 3, md: 4 },
-              background: (() => {
-                const { main, alt } = accentFor(selectedReport)
-                return `linear-gradient(135deg, ${main}10 0%, ${alt}20 50%, #f8fafc 100%)`
-              })(),
-              flexShrink: 0,
-              zIndex: 1,
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
+          {/* Report Header - Only show if report hasn't been generated */}
+          {!reportGenerated && (
+            <Paper
+              elevation={0}
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: { xs: 2, md: 3 },
+                px: { xs: 2, md: 4 },
+                py: { xs: 3, md: 4 },
                 background: (() => {
-                  const { main } = accentFor(selectedReport)
-                  return `radial-gradient(circle at 20% 20%, ${main}15 0%, transparent 50%), radial-gradient(circle at 80% 80%, ${main}10 0%, transparent 50%)`
+                  const { main, alt } = accentFor(selectedReport)
+                  return `linear-gradient(135deg, ${main}10 0%, ${alt}20 50%, #f8fafc 100%)`
                 })(),
-                pointerEvents: 'none'
-              }
-            }}
-          >
-            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
-              <Button 
-                onClick={backToGrid} 
-                variant="contained"
-                startIcon={<ArrowBackIcon />}
-                sx={{ 
-                  borderRadius: 3,
-                  textTransform: 'none',
-                  fontWeight: 700,
-                  fontSize: { xs: 14, md: 16 },
-                  px: { xs: 3, md: 5 },
-                  py: { xs: 1.25, md: 1.5 },
+                flexShrink: 0,
+                zIndex: 1,
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                   background: (() => {
-                    const { main, alt } = accentFor(selectedReport)
-                    return `linear-gradient(135deg, ${main}, ${alt})`
-                  })(),
-                  boxShadow: (() => {
                     const { main } = accentFor(selectedReport)
-                    return `0 6px 20px ${alpha(main, 0.3)}`
+                    return `radial-gradient(circle at 20% 20%, ${main}15 0%, transparent 50%), radial-gradient(circle at 80% 80%, ${main}10 0%, transparent 50%)`
                   })(),
-                  mb: 2,
-                  '&:hover': {
+                  pointerEvents: 'none'
+                }
+              }}
+            >
+              <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
+                <Button 
+                  onClick={backToGrid} 
+                  variant="contained"
+                  startIcon={<ArrowBackIcon />}
+                  sx={{ 
+                    borderRadius: 3,
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    fontSize: { xs: 14, md: 16 },
+                    px: { xs: 3, md: 5 },
+                    py: { xs: 1.25, md: 1.5 },
+                    background: (() => {
+                      const { main, alt } = accentFor(selectedReport)
+                      return `linear-gradient(135deg, ${main}, ${alt})`
+                    })(),
                     boxShadow: (() => {
                       const { main } = accentFor(selectedReport)
-                      return `0 8px 25px ${alpha(main, 0.4)}`
+                      return `0 6px 20px ${alpha(main, 0.3)}`
                     })(),
-                    transform: 'translateY(-2px) scale(1.02)'
-                  },
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                Back to Reports
-              </Button>
-              
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                {(() => {
-                  const { Icon } = accentFor(selectedReport)
-                  return (
-                    <Box sx={{
-                      p: 2,
-                      borderRadius: 3,
-                      background: (() => {
-                        const { main, alt } = accentFor(selectedReport)
-                        return `linear-gradient(135deg, ${main}, ${alt})`
-                      })(),
+                    mb: 2,
+                    '&:hover': {
                       boxShadow: (() => {
                         const { main } = accentFor(selectedReport)
-                        return `0 8px 25px ${alpha(main, 0.3)}`
+                        return `0 8px 25px ${alpha(main, 0.4)}`
                       })(),
-                      animation: 'float 3s ease-in-out infinite'
-                    }}>
-                      <Icon size={40} />
-                    </Box>
-                  )
-                })()}
+                      transform: 'translateY(-2px) scale(1.02)'
+                    },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  Back to Reports
+                </Button>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  {(() => {
+                    const { Icon } = accentFor(selectedReport)
+                    return (
+                      <Box sx={{
+                        p: 2,
+                        borderRadius: 3,
+                        background: (() => {
+                          const { main, alt } = accentFor(selectedReport)
+                          return `linear-gradient(135deg, ${main}, ${alt})`
+                        })(),
+                        boxShadow: (() => {
+                          const { main } = accentFor(selectedReport)
+                          return `0 8px 25px ${alpha(main, 0.3)}`
+                        })(),
+                        animation: 'float 3s ease-in-out infinite'
+                      }}>
+                        <Icon size={40} />
+                      </Box>
+                    )
+                  })()}
+                </Box>
+                
+                <Typography 
+                  variant="h4" 
+                  sx={{ 
+                    fontWeight: 900,
+                    fontSize: { xs: 24, sm: 28, md: 36 },
+                    background: (() => {
+                      const { main, alt } = accentFor(selectedReport)
+                      return `linear-gradient(135deg, ${main}, ${alt})`
+                    })(),
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    letterSpacing: '-0.5px',
+                    textAlign: 'center',
+                    mb: 1
+                  }}
+                >
+                  {selectedReportLabel}
+                </Typography>
+                
+                <Typography 
+                  variant="body1"
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: { xs: 14, md: 16 },
+                    fontWeight: 500,
+                    maxWidth: 500,
+                    mx: 'auto'
+                  }}
+                >
+                  {(() => {
+                    const reportData = reportGroups
+                      .flatMap(group => group.reports)
+                      .find(report => report.key === selectedReport)
+                    return reportData?.description || 'Detailed analytics and insights'
+                  })()}
+                </Typography>
               </Box>
-              
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 900,
-                  fontSize: { xs: 24, sm: 28, md: 36 },
-                  background: (() => {
-                    const { main, alt } = accentFor(selectedReport)
-                    return `linear-gradient(135deg, ${main}, ${alt})`
+            </Paper>
+          )}
+          
+          {/* Floating Back Button - Only show when report is generated */}
+          {reportGenerated && (
+            <Button 
+              onClick={backToGrid} 
+              variant="contained"
+              startIcon={<ArrowBackIcon />}
+              sx={{ 
+                position: 'fixed',
+                top: 16,
+                left: 16,
+                zIndex: 1000,
+                borderRadius: 3,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: 14,
+                px: 3,
+                py: 1.25,
+                background: (() => {
+                  const { main, alt } = accentFor(selectedReport)
+                  return `linear-gradient(135deg, ${main}, ${alt})`
+                })(),
+                boxShadow: (() => {
+                  const { main } = accentFor(selectedReport)
+                  return `0 6px 20px ${alpha(main, 0.4)}`
+                })(),
+                '&:hover': {
+                  boxShadow: (() => {
+                    const { main } = accentFor(selectedReport)
+                    return `0 8px 25px ${alpha(main, 0.5)}`
                   })(),
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  letterSpacing: '-0.5px',
-                  textAlign: 'center',
-                  mb: 1
-                }}
-              >
-                {selectedReportLabel}
-              </Typography>
-              
-              <Typography 
-                variant="body1"
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: { xs: 14, md: 16 },
-                  fontWeight: 500,
-                  maxWidth: 500,
-                  mx: 'auto'
-                }}
-              >
-                {(() => {
-                  const reportData = reportGroups
-                    .flatMap(group => group.reports)
-                    .find(report => report.key === selectedReport)
-                  return reportData?.description || 'Detailed analytics and insights'
-                })()}
-              </Typography>
-            </Box>
-          </Paper>
+                  transform: 'translateY(-2px) scale(1.02)'
+                },
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              Back to Reports
+            </Button>
+          )}
           
           {/* Report Content - Scrollable */}
           <Box 
@@ -711,7 +787,7 @@ export default function ReportsPage() {
               maxWidth: '100vw'
             }}
           >
-            <ReportRunner selectedReport={selectedReport} />
+            <ReportRunner selectedReport={selectedReport} onReportGenerated={handleReportGenerated} />
           </Box>
         </Box>
       )}

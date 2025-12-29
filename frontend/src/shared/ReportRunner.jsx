@@ -6,8 +6,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import ReportViewer from './ReportViewer'
+import TodoViewer from './TodoViewer'
 
-export default function ReportRunner({ selectedReport }) {
+export default function ReportRunner({ selectedReport, onReportGenerated }) {
   const [fromDate, setFromDate] = useState(null)
   const [toDate, setToDate] = useState(null)
   const [month, setMonth] = useState(new Date().getMonth() + 1)
@@ -33,6 +34,9 @@ export default function ReportRunner({ selectedReport }) {
       debitors_report: 'Sundry Debitors Report',
       hr_report: 'HR Attendance Report',
       daily_activity_report: 'Daily Activity Report',
+      todo_report: 'TO DO LIST',
+      collection_report: 'Collection by Person Report',
+      collection_brand_report: 'Collection by Brand Wise Report',
     }
     return names[selectedReport] || 'Result'
   }, [selectedReport])
@@ -50,6 +54,9 @@ export default function ReportRunner({ selectedReport }) {
       debitors_report: 'proc_DEBITORS_report',
       hr_report: 'proc_attend_report_datepivot',
       daily_activity_report: 'proc_getdailysummary',
+      todo_report: 'proc_currenttodolist',
+      collection_report: 'proc_getpaymentcollectedby',
+      collection_brand_report: 'proc_getpaymentbrand',
     }
   }, [])
 
@@ -93,6 +100,12 @@ export default function ReportRunner({ selectedReport }) {
     if (selectedReport === 'stock_report' || selectedReport === 'pending_report' || selectedReport === 'order_report') {
       // Stock report, Pending payment report, and Order report (no parameters needed)
       return {}
+    } else if (selectedReport === 'todo_report') {
+      // TODO report parameters for proc_currenttodolist
+        return {
+        from_date: fromStr || new Date().toISOString().split('T')[0],
+        to_date: toStr || new Date().toISOString().split('T')[0]
+        }
     } else if (selectedReport === 'purchase_report') {
       // Purchase report parameters for proc_summary_purchase1
         return {
@@ -135,6 +148,19 @@ export default function ReportRunner({ selectedReport }) {
         fdate: fromStr || new Date().toISOString().split('T')[0],
         tdate: toStr || new Date().toISOString().split('T')[0]
         }
+    } else if (selectedReport === 'collection_report') {
+      // Collection by person report parameters for proc_getpaymentcollectedby
+        return {
+        from_date: fromStr || new Date().toISOString().split('T')[0],
+        to_date: toStr || new Date().toISOString().split('T')[0]
+        }
+    } else if (selectedReport === 'collection_brand_report') {
+      // Collection by brand report parameters for proc_getpaymentbrand
+        return {
+        from_date: fromStr || new Date().toISOString().split('T')[0],
+        to_date: toStr || new Date().toISOString().split('T')[0],
+        brand: brand || 'fffff'
+        }
     } else {
       // Sales report parameters for proc_CHutilizedatewise_reportf2
         return {
@@ -175,8 +201,16 @@ export default function ReportRunner({ selectedReport }) {
         throw new Error(msg)
       }
       setData(json)
+      // Notify parent that report was generated successfully
+      if (onReportGenerated) {
+        onReportGenerated(true)
+      }
     } catch (e) {
       setError(e.message)
+      // Notify parent that report generation failed
+      if (onReportGenerated) {
+        onReportGenerated(false)
+      }
     } finally {
       setLoading(false)
     }
@@ -221,6 +255,12 @@ export default function ReportRunner({ selectedReport }) {
                   ? 'Select month and year to view HR attendance data'
                   : selectedReport === 'daily_activity_report'
                   ? 'Select date range to view daily business activity summary'
+                  : selectedReport === 'todo_report'
+                  ? 'Select date range to view TODO items with reminders'
+                  : selectedReport === 'collection_report'
+                  ? 'Select date range to view payment collection data by person'
+                  : selectedReport === 'collection_brand_report'
+                  ? 'Select date range and brand to view payment collection data by brand'
                   : 'Select date range and filters to generate your report'
                 }
               </Typography>
@@ -376,7 +416,7 @@ export default function ReportRunner({ selectedReport }) {
                 }} 
               />
             </Box>
-              {selectedReport !== 'purchase_report' && selectedReport !== 'payment_report' && selectedReport !== 'petty_expense_report' && selectedReport !== 'creditors_report' && selectedReport !== 'debitors_report' && selectedReport !== 'daily_activity_report' && (
+              {selectedReport !== 'purchase_report' && selectedReport !== 'payment_report' && selectedReport !== 'petty_expense_report' && selectedReport !== 'creditors_report' && selectedReport !== 'debitors_report' && selectedReport !== 'daily_activity_report' && selectedReport !== 'todo_report' && selectedReport !== 'collection_report' && (
                 <Box sx={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr',
@@ -412,36 +452,38 @@ export default function ReportRunner({ selectedReport }) {
                       ))}
                     </Select>
                   </FormControl>
-                  <FormControl size="medium" fullWidth>
-                    <InputLabel sx={{ fontSize: { xs: 14, md: 15 }, fontWeight: 600 }}>Customer Filter</InputLabel>
-                    <Select
-                      value={customer}
-                      label="Customer Filter"
-                      onChange={(e) => setCustomer(e.target.value)}
-                      sx={{ 
-                        borderRadius: 2,
-                        background: 'white',
-                        '& .MuiSelect-select': { fontSize: { xs: 14, md: 15 }, fontWeight: 600 },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderWidth: 2,
-                          borderColor: 'rgba(79, 70, 229, 0.2)'
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(79, 70, 229, 0.4)'
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#4f46e5'
-                        }
-                      }}
-                    >
-                      <MenuItem value="" sx={{ fontSize: { xs: 13, md: 14 } }}>All Customers</MenuItem>
-                      {customers.map((item, index) => (
-                        <MenuItem key={index} value={item.CLIENTUNIQUE} sx={{ fontSize: { xs: 13, md: 14 } }}>
-                          {item.CLIENTUNIQUE}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  {selectedReport !== 'collection_brand_report' && (
+                    <FormControl size="medium" fullWidth>
+                      <InputLabel sx={{ fontSize: { xs: 14, md: 15 }, fontWeight: 600 }}>Customer Filter</InputLabel>
+                      <Select
+                        value={customer}
+                        label="Customer Filter"
+                        onChange={(e) => setCustomer(e.target.value)}
+                        sx={{ 
+                          borderRadius: 2,
+                          background: 'white',
+                          '& .MuiSelect-select': { fontSize: { xs: 14, md: 15 }, fontWeight: 600 },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderWidth: 2,
+                            borderColor: 'rgba(79, 70, 229, 0.2)'
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(79, 70, 229, 0.4)'
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#4f46e5'
+                          }
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontSize: { xs: 13, md: 14 } }}>All Customers</MenuItem>
+                        {customers.map((item, index) => (
+                          <MenuItem key={index} value={item.CLIENTUNIQUE} sx={{ fontSize: { xs: 13, md: 14 } }}>
+                            {item.CLIENTUNIQUE}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
                 </Box>
               )}
             </>
@@ -495,7 +537,11 @@ export default function ReportRunner({ selectedReport }) {
         </Box>
       )}
       {data && (
-        <ReportViewer response={data} reportTitle={reportTitle} />
+        selectedReport === 'todo_report' ? (
+          <TodoViewer response={data} reportTitle={reportTitle} />
+        ) : (
+          <ReportViewer response={data} reportTitle={reportTitle} />
+        )
       )}
     </Box>
   )

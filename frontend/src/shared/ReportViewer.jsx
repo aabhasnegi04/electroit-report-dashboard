@@ -14,6 +14,8 @@ import SundryCreditorsCharts from './charts/SundryCreditorsCharts'
 import SundryDebitorsCharts from './charts/SundryDebitorsCharts'
 import HRAttendanceCharts from './charts/HRAttendanceCharts'
 import DailyActivityCharts from './charts/DailyActivityCharts'
+import CollectionByPersonCharts from './charts/CollectionByPersonCharts'
+import CollectionByBrandCharts from './charts/CollectionByBrandCharts'
 import ExportOptions from './ExportOptions'
 import { exportData } from './exportUtils'
 
@@ -311,6 +313,12 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
   const isHRReport = recordsets.length === 1 && reportTitle === 'HR Attendance Report'
   // Check if this is a daily activity report with 3 result sets
   const isDailyActivityReport = recordsets.length === 3 && reportTitle === 'Daily Activity Report'
+
+  // Check if this is a collection by person report with 3 result sets
+  const isCollectionReport = recordsets.length === 3 && reportTitle === 'Collection by Person Report'
+
+  // Check if this is a collection by brand report with 3 result sets
+  const isCollectionBrandReport = recordsets.length === 3 && reportTitle === 'Collection by Brand Wise Report'
   
   // Export state
   const [isExporting, setIsExporting] = useState(false)
@@ -494,10 +502,88 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           headers: ['Total Value']
         }
       ]
+    } else if (isCollectionReport && response.recordsets.length >= 3) {
+      // Collection by Person Report with 3 recordsets
+      const detailedData = response.recordsets[0] || []
+      const summaryData = response.recordsets[1] || []
+      const detailedByModeData = response.recordsets[2] || []
+      
+      return [
+        {
+          name: 'collectionDetailedData',
+          data: detailedData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            invoiceNo: item.INVOICE_NO || '',
+            amount: item.AMOUNT || 0,
+            paymentDate: item.PAYMENT_DATE || '',
+            paymentMode: item.PAYMENT_MODE || ''
+          })),
+          headers: ['Collection By', 'Invoice No', 'Amount', 'Payment Date', 'Payment Mode']
+        },
+        {
+          name: 'collectionSummaryData',
+          data: summaryData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            invoiceCount: item.INVOICECOUNT || 0,
+            amount: item.AMOUNT || 0
+          })),
+          headers: ['Collection By', 'Invoice Count', 'Amount']
+        },
+        {
+          name: 'collectionByModeData',
+          data: detailedByModeData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            paymentMode: item.PAYMENT_MODE || '',
+            paymentDate: item.PAYMENT_DATE || '',
+            invoiceCount: item.INVOICECOUNT || 0,
+            amount: item.AMOUNT || 0
+          })),
+          headers: ['Collection By', 'Payment Mode', 'Payment Date', 'Invoice Count', 'Amount']
+        }
+      ]
+    } else if (isCollectionBrandReport && response.recordsets.length >= 3) {
+      // Collection by Brand Report with 3 recordsets
+      const detailedData = response.recordsets[0] || []
+      const summaryData = response.recordsets[1] || []
+      const detailedByModeData = response.recordsets[2] || []
+      
+      return [
+        {
+          name: 'brandCollectionDetailedData',
+          data: detailedData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            invoiceNo: item.INVOICE_NO || '',
+            amount: item.AMOUNT || 0,
+            paymentDate: item.PAYMENT_DATE || '',
+            paymentMode: item.PAYMENT_MODE || ''
+          })),
+          headers: ['Collection By', 'Invoice No', 'Amount', 'Payment Date', 'Payment Mode']
+        },
+        {
+          name: 'brandCollectionSummaryData',
+          data: summaryData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            invoiceCount: item.INVOICECOUNT || 0,
+            amount: item.AMOUNT || 0
+          })),
+          headers: ['Collection By', 'Invoice Count', 'Amount']
+        },
+        {
+          name: 'brandCollectionByModeData',
+          data: detailedByModeData.map(item => ({
+            collectionBy: item.COLLECTIONBY || '',
+            paymentMode: item.PAYMENT_MODE || '',
+            paymentDate: item.PAYMENT_DATE || '',
+            invoiceCount: item.INVOICECOUNT || 0,
+            amount: item.AMOUNT || 0
+          })),
+          headers: ['Collection By', 'Payment Mode', 'Payment Date', 'Invoice Count', 'Amount']
+        }
+      ]
     }
     
     return []
-  }, [isSalesReport, isPurchaseReport, isStockReport, isPaymentReport, isPendingReport, isOrderReport, isPettyExpenseReport, response])
+  }, [isSalesReport, isPurchaseReport, isStockReport, isPaymentReport, isPendingReport, isOrderReport, isPettyExpenseReport, isCollectionReport, isCollectionBrandReport, response])
   
   const handleExport = async (exportType, exportFormat, includeCharts = false) => {
     setIsExporting(true)
@@ -723,6 +809,40 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           <DailyActivityCharts data={response} />
         </Box>
       )}
+
+      {/* Custom Charts for Collection by Person Report */}
+      {isCollectionReport && (
+        <Box sx={{ position: 'relative', width: '100%', m: 0 }}>
+          {/* Export Button - positioned absolutely */}
+          <Box sx={{ position: 'absolute', top: { xs: 8, md: 12 }, right: { xs: 8, md: 12 }, zIndex: 10 }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+          <CollectionByPersonCharts data={response} />
+        </Box>
+      )}
+
+      {/* Custom Charts for Collection by Brand Report */}
+      {isCollectionBrandReport && (
+        <Box sx={{ position: 'relative', width: '100%', m: 0 }}>
+          {/* Export Button - positioned absolutely */}
+          <Box sx={{ position: 'absolute', top: { xs: 8, md: 12 }, right: { xs: 8, md: 12 }, zIndex: 10 }}>
+            <ExportOptions
+              reportData={response}
+              chartData={chartData}
+              reportTitle={reportTitle}
+              isExporting={isExporting}
+              onExport={handleExport}
+            />
+          </Box>
+          <CollectionByBrandCharts data={response} />
+        </Box>
+      )}
       
       {/* Table Navigation */}
       {recordsets.length > 1 && (
@@ -753,6 +873,8 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
               const pettyExpenseTableNames = ['Detailed', 'Summary']
               const creditorsTableNames = ['Creditors']
               const debitorsTableNames = ['Debitors']
+              const collectionTableNames = ['Detailed', 'Summary', 'By Mode']
+              const collectionBrandTableNames = ['Detailed', 'Summary', 'By Mode']
               const tableNames = isPurchaseReport ? purchaseTableNames 
                 : isStockReport ? stockTableNames 
                 : isPaymentReport ? paymentTableNames 
@@ -761,6 +883,8 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
                 : isPettyExpenseReport ? pettyExpenseTableNames
                 : isCreditorsReport ? creditorsTableNames
                 : isDebitorsReport ? debitorsTableNames
+                : isCollectionReport ? collectionTableNames
+                : isCollectionBrandReport ? collectionBrandTableNames
                 : salesTableNames
               return (
               <Button
@@ -810,8 +934,10 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
           const paymentTableNames = ['Detailed Payments', 'Party Summary']
           const pendingTableNames = ['Pending Payments Summary']
           const orderTableNames = ['Orders by Month', 'Orders by Client', 'Orders by Brand']
-          const tableNames = isPurchaseReport ? purchaseTableNames : isStockReport ? stockTableNames : isPaymentReport ? paymentTableNames : isPendingReport ? pendingTableNames : isOrderReport ? orderTableNames : salesTableNames
-          const tableTitle = (isSalesReport || isPurchaseReport || isStockReport || isPaymentReport || isPendingReport || isOrderReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
+          const collectionTableNames = ['Collection Details', 'Collection Summary', 'Collection by Mode & Date']
+          const collectionBrandTableNames = ['Brand Collection Details', 'Brand Collection Summary', 'Brand Collection by Mode & Date']
+          const tableNames = isPurchaseReport ? purchaseTableNames : isStockReport ? stockTableNames : isPaymentReport ? paymentTableNames : isPendingReport ? pendingTableNames : isOrderReport ? orderTableNames : isCollectionReport ? collectionTableNames : isCollectionBrandReport ? collectionBrandTableNames : salesTableNames
+          const tableTitle = (isSalesReport || isPurchaseReport || isStockReport || isPaymentReport || isPendingReport || isOrderReport || isCollectionReport || isCollectionBrandReport) ? tableNames[idx] : `${reportTitle} ${recordsets.length > 1 ? `(${idx + 1})` : ''}`
           
           return (
           <Box key={idx} ref={(el) => (sectionRefs[idx].current = el)}>
@@ -822,7 +948,7 @@ export default function ReportViewer({ response, reportTitle = 'Result' }) {
       )}
       
       {/* Auto Charts for other reports */}
-      {!isSalesReport && !isPurchaseReport && !isStockReport && !isPaymentReport && !isPendingReport && !isOrderReport && !isPettyExpenseReport && !isCreditorsReport && !isDebitorsReport && !isHRReport && !isDailyActivityReport && <AutoCharts rows={first} />}
+      {!isSalesReport && !isPurchaseReport && !isStockReport && !isPaymentReport && !isPendingReport && !isOrderReport && !isPettyExpenseReport && !isCreditorsReport && !isDebitorsReport && !isHRReport && !isDailyActivityReport && !isCollectionReport && !isCollectionBrandReport && <AutoCharts rows={first} />}
       
       {/* Scroll to Top Button */}
       <Fab
